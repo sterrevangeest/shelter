@@ -11,6 +11,8 @@ module.exports = express()
   .use('/image', express.static('db/image'))
   // TODO: Serve the images in `db/image` on `/image`.
   .get('/', all)
+  .get('/:id', details)
+  //.use(notFound404)
   /* TODO: Other HTTP methods. */
   // .post('/', add)
   // .get('/:id', get)
@@ -21,7 +23,6 @@ module.exports = express()
 
 function all(req, res) {
   var result = {errors: [], data: db.all()}
-
   /* Use the following to support just HTML:  */
   res.render('list.ejs', Object.assign({}, result, helpers))
 
@@ -30,4 +31,27 @@ function all(req, res) {
   //   json: () => res.json(result),
   //   html: () => res.render('list.ejs', Object.assign({}, result, helpers))
   // })
+}
+
+function details(req, res) {
+  var id = req.params.id //store requested id in var id
+  console.log(id)
+
+      if (id != db.has(id)){
+        var result = {errors: [{id: 404}], data: db.get(id)} //db.get
+        res.render('error.ejs', Object.assign({}, result, helpers))
+        console.log('404 Not Found')
+        res.statusCode = 404
+      }
+
+      else {
+        var result = {errors: [], data: db.get(id)} //db.get
+        //console.log(result)
+        res.render('detail.ejs', Object.assign({}, result, helpers))
+
+      }
+
+
+
+
 }
