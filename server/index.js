@@ -18,7 +18,7 @@ module.exports = express()
   // .get('/:id', get)
   // .put('/:id', set)
   // .patch('/:id', change)
-  // .delete('/:id', remove)
+  .delete('/:id', remove)
   .listen(1902)
 
 function all(req, res) {
@@ -44,8 +44,14 @@ function details(req, res) {
             errors: [],
             data: db.get(id) //db.get
         }
+        res.statusCode = 200 //200 OK
         /* Use the following to support just HTML:  */
-        res.render('detail.ejs', Object.assign({}, result, helpers))
+        //res.render('detail.ejs', Object.assign({}, result, helpers))
+
+        res.format({
+          json: () => res.json(result),
+          html: () => res.render('detail.ejs', Object.assign({}, result, helpers))
+        })
 
       } else {
         console.log('404 Not Found')
@@ -57,10 +63,15 @@ function details(req, res) {
         //data: db.get(id) //db.get
         }
         //set status to 404
-        res.status(404)
+        res.statusCode = 404
         /* Use the following to support just HTML:  */
-        res.render('error.ejs', Object.assign({}, result, helpers))
+        //res.render('error.ejs', Object.assign({}, result, helpers))
+        res.format({
+          json: () => res.json(result),
+          html: () => res.render('error.ejs', Object.assign({}, result, helpers))
+        })
       }
+
     } catch (err) {
     console.log('400 Bad Request')
 
@@ -70,11 +81,40 @@ function details(req, res) {
         title: 'Bad Request'
         }],
       }
-    res.status(400)
+    //set status to 404
+    res.statusCode = 400
+    //res.setHeader('Content-Type', 'text/html')
     res.write('400 Bad Request \n')
-    res.write( id + ' is not a valid identifier')
+    res.write( id + ' is not a valid identifier \n')
     res.end()
-    //return
     }
+
+  }
+
+/// !!!! vanaf hier was ik nog een beetje aan t kloten, dus weet niet helemaal of alles precies klopt enzo :)  
+  function remove(req, res) {
+    var id = req.params.id //store requested id in var id
+    var result = {
+        errors: [],
+        data: db.all() //db.get
+    }
+
+    try {
+
+      if (db.has(id)) {
+        db.remove(id)
+        console.log('204 No Content, ' + id + ' has been deleted')
+        res.statusCode = 204 //204 No Content
+        res.write('204 No Content \n')
+        res.write('204 No Content, ' + id + ' has been deleted')
+      } else {
+        console.log(id + " was already deleted")
+        //res.statusCode = 204
+      }
+    } catch (err) {
+      console.log(id + " doesn't exists")
+    }
+
+
 
   }
