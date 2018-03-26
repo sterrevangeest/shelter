@@ -53,7 +53,23 @@ function details(req, res) {
           html: () => res.render('detail.ejs', Object.assign({}, result, helpers))
         })
 
-      } else {
+      } else if (db.removed(id)) {
+        var result = {
+            errors: [{
+              id: 410,
+              title: 'Gone'
+            }],
+          }
+        res.statusCode = 410 //410 Gone
+        res.write('410 Gone \n')
+        res.end()
+
+      }
+
+
+
+
+      else {
         console.log('404 Not Found')
         var result = {
             errors: [{
@@ -91,7 +107,7 @@ function details(req, res) {
 
   }
 
-/// !!!! vanaf hier was ik nog een beetje aan t kloten, dus weet niet helemaal of alles precies klopt enzo :)  
+/// !!!! vanaf hier was ik nog een beetje aan t kloten, dus weet niet helemaal of alles precies klopt enzo :)
   function remove(req, res) {
     var id = req.params.id //store requested id in var id
     var result = {
